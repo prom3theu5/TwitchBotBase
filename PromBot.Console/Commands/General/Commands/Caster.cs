@@ -2,19 +2,14 @@
 using System.Threading.Tasks;
 using PromBot.Commands;
 using TwitchLib;
-using Prom3theu5.AppCache;
 using System.Linq;
 
 namespace PromBot.CommandModules.GeneralCommands.Commands
 {
     internal class Caster : ChannelCommand
     {
-        private readonly IAppCache _cache;
-
         public Caster(ChannelModule module) : base(module)
-        {
-            _cache = Bootstrapper.Container.GetInstance<IAppCache>();
-        }
+        { }
 
         internal override void Init(CommandGroupBuilder cgb)
         {
@@ -31,7 +26,7 @@ namespace PromBot.CommandModules.GeneralCommands.Commands
                 if (!e.IsAdmin) return;
                 var streamer = e.GetArg("target");
 
-                var channel = await _cache.GetOrAddAsync($"User-Overview:{streamer}", async () => {
+                var channel = await Cache.GetOrAddAsync($"User-Overview:{streamer}", async () => {
                     var foundChannel = await TwitchAPI.Users.v5.GetUserByName(streamer);
                     return foundChannel.Matches.FirstOrDefault();
                 }, TimeSpan.FromMinutes(60));
@@ -42,7 +37,7 @@ namespace PromBot.CommandModules.GeneralCommands.Commands
                     return;
                 }
 
-                var channelDetails = await _cache.GetOrAddAsync($"Channel-Details:{streamer}", async () => {
+                var channelDetails = await Cache.GetOrAddAsync($"Channel-Details:{streamer}", async () => {
                     return await TwitchAPI.Channels.v5.GetChannelByID(channel.Id);
                 }, TimeSpan.FromMinutes(5));
 

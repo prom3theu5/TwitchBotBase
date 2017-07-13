@@ -3,18 +3,13 @@ using System.Threading.Tasks;
 using PromBot.Commands;
 using TwitchLib;
 using System.Linq;
-using Prom3theu5.AppCache;
 
 namespace PromBot.CommandModules.GeneralCommands.Commands
 {
     internal class Uptime : ChannelCommand
     {
-        private readonly IAppCache _cache;
-
         public Uptime(ChannelModule module) : base(module)
-        {
-            _cache = Bootstrapper.Container.GetInstance<IAppCache>();
-        }
+        { }
 
         internal override void Init(CommandGroupBuilder cgb)
         {
@@ -26,7 +21,7 @@ namespace PromBot.CommandModules.GeneralCommands.Commands
         private Func<CommandEventArgs, Task> DoUptime() =>
             async e => {
 
-                var channel = await _cache.GetOrAddAsync("Broadcaster-Channel-Overview", async ()=> {
+                var channel = await Cache.GetOrAddAsync("Broadcaster-Channel-Overview", async ()=> {
                     var foundChannel = await TwitchAPI.Users.v5.GetUserByName(Bot.Channel);
                     return foundChannel.Matches.FirstOrDefault();
                 }, TimeSpan.FromMinutes(60));

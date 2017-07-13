@@ -10,5 +10,12 @@ namespace PromBot.CommandModules
         public abstract string Prefix { get; }
 
         public abstract void Install(ModuleManager manager);
+
+        public readonly Client Client;
+
+        public ChannelModule(Client client)
+        {
+            Client = client;
+        }
     }
 }

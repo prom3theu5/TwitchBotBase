@@ -7,7 +7,7 @@ namespace PromBot
     {
         static void Main(string[] args)
         {
-            Bootstrapper.Bootstrap();
+            Bootstrapper.Setup();
             Log.Logger = Bootstrapper.Container.GetInstance<ILogger>();
             
             HostFactory.Run(x =>

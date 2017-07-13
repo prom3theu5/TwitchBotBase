@@ -10,7 +10,7 @@ namespace PromBot
     {
         public static Container Container;
 
-        public static void Bootstrap()
+        public static void Setup()
         {
             Container = new Container();
             var logger = new LoggerConfiguration()
@@ -31,5 +31,8 @@ namespace PromBot
             // Container.RegisterSingleton<ICurrencyRepository, CurrencyRepository>();
             Container.Verify();
         }
+
+        public static ILogger Logger => Container.GetInstance<ILogger>();
+        public static IAppCache Cache => Container.GetInstance<IAppCache>();
     }
 }

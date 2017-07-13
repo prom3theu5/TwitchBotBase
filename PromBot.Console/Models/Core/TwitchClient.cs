@@ -31,7 +31,7 @@ namespace PromBot
 
         public Client(string nick, string pass, string channel, string clientid)
         {
-            _logger = Bootstrapper.Container.GetInstance<ILogger>();
+            _logger = Bootstrapper.Logger;
             _connectionStopwatch = new Stopwatch();
 
             //Async
@@ -86,7 +86,7 @@ namespace PromBot
         private async void Client_OnConnected(object sender, TwitchLib.Events.Client.OnConnectedArgs e)
         {
             _logger.Information("Connected to Twitch Channel {Channel}", e.AutoJoinChannel);
-            await SendMessage($"{Bot.BotNickname} Online...");
+            await SendMessage($"{Bot.BotNickname} Online...").ConfigureAwait(false);
         }
 
         private Task ConnectClient()

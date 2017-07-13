@@ -29,7 +29,7 @@ namespace PromBot
 
         public Bot()
         {
-            _logger = Bootstrapper.Container.GetInstance<ILogger>();
+            _logger = Bootstrapper.Logger;
         }
 
         public async Task<bool> StartBot()
@@ -72,11 +72,11 @@ namespace PromBot
                 var modules = Client.AddService(new ModuleService());
 
                 //Add Each Command Module (Group of Commands)
-                modules.Add(new GeneralCommandsModule(), "GeneralCommands");
-                modules.Add(new UtilitiesModule(), "Utilities");
-                modules.Add(new NotificationModule(), "Notifications");
-                modules.Add(new ProtectionsModule(), "Protections");
-                modules.Add(new DiceModule(), "Dice");
+                modules.Add(new GeneralCommandsModule(Client), "GeneralCommands");
+                modules.Add(new UtilitiesModule(Client), "Utilities");
+                modules.Add(new NotificationModule(Client), "Notifications");
+                modules.Add(new ProtectionsModule(Client), "Protections");
+                modules.Add(new DiceModule(Client), "Dice");
 
                 Client.ExecuteAndWait(async () =>
                 {

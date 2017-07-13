@@ -5,7 +5,7 @@ namespace PromBot.CommandModules.Protections
 {
     internal class ProtectionsModule : ChannelModule
     {
-        public ProtectionsModule()
+        public ProtectionsModule(Client client) : base(client)
         {
             commands.Add(new Commands.Caps(this));
             commands.Add(new Commands.Links(this));

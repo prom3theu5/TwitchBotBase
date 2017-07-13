@@ -6,9 +6,9 @@ using System.Net;
 using System.Threading.Tasks;
 using PromBot.CommandModules.Protections.Models;
 using PromBot.Commands;
-using Serilog;
 using TwitchLib.Extensions.Client;
 using TwitchLib.Models.Client;
+using TwitchLib.Events.Client;
 
 namespace PromBot.CommandModules.Protections.Commands
 {
@@ -16,12 +16,12 @@ namespace PromBot.CommandModules.Protections.Commands
     {
         private List<string> _topLevelDomains;
         private readonly List<Permit> _permits;
-        private Client _client;
 
         public Links(ChannelModule module) : base(module)
         {
             _permits = new List<Permit>();
             _topLevelDomains = DownloadTopLevelDomains();
+            TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
         }
 
         private List<string> DownloadTopLevelDomains()
@@ -48,7 +48,7 @@ namespace PromBot.CommandModules.Protections.Commands
             }
             catch (Exception e)
             {
-                Log.Error("Error in Link Protection, Loading Top Level Domains: {error}", e.Message);
+                Logger.Error("Error in Link Protection, Loading Top Level Domains: {error}", e.Message);
                 return null;
             }
         }
@@ -60,12 +60,9 @@ namespace PromBot.CommandModules.Protections.Commands
                .Parameter("viewer", ParameterType.Required)
                .Parameter("number", ParameterType.Optional)
                .Do(DoPermit());
-
-            _client = cgb.Service.Client;
-            _client.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
         }
 
-        private void TwitchClient_OnMessageReceived(object sender, TwitchLib.Events.Client.OnMessageReceivedArgs e)
+        private void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
             if (_topLevelDomains != null)
                 ViolatesProtections(e.ChatMessage.Username, e.ChatMessage.IsSubscriber, e.ChatMessage.IsModerator, e.ChatMessage);
@@ -82,13 +79,13 @@ namespace PromBot.CommandModules.Protections.Commands
                     if (ViolateLinkProtection(message.Message) && !LinkPermitExists(username))
                     {
                         reply = $"@{username} Please get permission before posting links.";
-                        TimeoutUserExt.TimeoutUser(_client.TwitchClient, username, TimeSpan.FromSeconds(1), message: reply);
+                        TwitchClient.TimeoutUser(username, TimeSpan.FromSeconds(1), message: reply);
                     }
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Error in Link Protection, Error Timing Out User: {user}, Message: {message}, Error: {error}",message.Username, message.Message, e.Message);
+                Logger.Error("Error in Link Protection, Error Timing Out User: {user}, Message: {message}, Error: {error}",message.Username, message.Message, e.Message);
             }
         }
 
@@ -146,7 +143,7 @@ namespace PromBot.CommandModules.Protections.Commands
                     }
                     catch
                     {
-                        Log.Error("Error in Link Protection, Adding Permit: {error}", e.Message);
+                        Logger.Error("Error in Link Protection, Adding Permit: {error}", e.Message);
                         await e.Client.SendMessage("Usage: !permit <user> <numberoflinks>").ConfigureAwait(false);
                     }
                 }

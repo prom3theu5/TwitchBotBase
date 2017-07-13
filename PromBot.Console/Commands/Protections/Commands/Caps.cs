@@ -1,6 +1,5 @@
 ﻿using System;
-using PromBot.Commands;
-using Serilog;
+using TwitchLib.Events.Client;
 using TwitchLib.Extensions.Client;
 using TwitchLib.Models.Client;
 
@@ -8,20 +7,15 @@ namespace PromBot.CommandModules.Protections.Commands
 {
     internal class Caps : ChannelCommand
     {
-        private Client _client;
         private const int _messageLength = 15;
         private const int _capsPercentage = 80;
 
         public Caps(ChannelModule module) : base(module)
-        { }
-        
-        internal override void Init(CommandGroupBuilder cgb)
         {
-            _client = cgb.Service.Client;
-            _client.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
+            TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
         }
 
-        private void TwitchClient_OnMessageReceived(object sender, TwitchLib.Events.Client.OnMessageReceivedArgs e)
+        private void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
             ViolatesProtections(e.ChatMessage.Username, e.ChatMessage.IsSubscriber, e.ChatMessage.IsModerator, e.ChatMessage);
         }
@@ -34,12 +28,12 @@ namespace PromBot.CommandModules.Protections.Commands
                 if (ViolateCapsProtection(message.Message))
                 {
                     var reply = $"@{username} Please don't use so many caps.";
-                    TimeoutUserExt.TimeoutUser(_client.TwitchClient, username, TimeSpan.FromSeconds(1), message: reply);
+                    TwitchClient.TimeoutUser(username, TimeSpan.FromSeconds(1), message: reply);
                 }
             }
             catch (Exception e)
             {
-                Log.Error("Error in Caps Protection, Error Timing Out User: {user}, Message: {message}, Error: {error}", message.Username, message.Message, e.Message);
+                Logger.Error("Error in Caps Protection, Error Timing Out User: {user}, Message: {message}, Error: {error}", message.Username, message.Message, e.Message);
             }
         }
 

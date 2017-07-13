@@ -9,9 +9,9 @@ namespace PromBot.CommandModules.GeneralCommands.Commands
         public PingCommand(ChannelModule module) : base(module)
         { }
 
-        internal override void Init(CommandGroupBuilder builder)
+        internal override void Init(CommandGroupBuilder cgb)
         {
-            builder.CreateCommand(Module.Prefix + "ping")
+            cgb.CreateCommand(Module.Prefix + "ping")
                 .Description("Send back Server Time, and EST time")
                 .Do(DoPing());
         }

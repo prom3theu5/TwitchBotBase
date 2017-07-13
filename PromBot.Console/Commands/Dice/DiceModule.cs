@@ -5,7 +5,7 @@ namespace PromBot.CommandModules.Dice
 {
     internal class DiceModule : ChannelModule
     {
-        public DiceModule()
+        public DiceModule(Client client) : base(client)
         {
             commands.Add(new Commands.DiceCommand(this));
         }

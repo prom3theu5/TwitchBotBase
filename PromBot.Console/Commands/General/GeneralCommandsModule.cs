@@ -5,7 +5,7 @@ namespace PromBot.CommandModules.GeneralCommands
 {
     internal class GeneralCommandsModule : ChannelModule
     {
-        public GeneralCommandsModule()
+        public GeneralCommandsModule(Client client): base(client)
         {
             commands.Add(new Commands.Caster(this));
             commands.Add(new Commands.StreamInfo(this));

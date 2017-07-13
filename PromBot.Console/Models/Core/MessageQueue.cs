@@ -32,7 +32,7 @@ namespace PromBot
 
         internal MessageQueue(TwitchClient Client, MessageQueueType type)
         {
-            _logger = Bootstrapper.Container.GetInstance<ILogger>();
+            _logger = Bootstrapper.Logger;
             _nextWarning = WarningStart;
             _client = Client;
             _type = type;

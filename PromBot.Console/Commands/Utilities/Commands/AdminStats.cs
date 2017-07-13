@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Linq;
-using PromBot.Commands;
 using System.Diagnostics;
+using TwitchLib.Events.Client;
 
 namespace PromBot.CommandModules.Utilities.Commands
 {
     internal class AdminStats : ChannelCommand
     {
-        private Client _client;
         private PerformanceCounter _cpuCounter;
         private PerformanceCounter _ramCounter;
 
@@ -15,15 +14,10 @@ namespace PromBot.CommandModules.Utilities.Commands
         {
             _ramCounter = new PerformanceCounter("Memory", "Available MBytes", true);
             _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
+            TwitchClient.OnWhisperReceived += TwitchWhispers_OnWhisperReceived;
         }
 
-        internal override void Init(CommandGroupBuilder cgb)
-        {
-            _client = cgb.Service.Client;
-            _client.TwitchClient.OnWhisperReceived += TwitchWhispers_OnWhisperReceived;
-        }
-
-        private void TwitchWhispers_OnWhisperReceived(object sender, TwitchLib.Events.Client.OnWhisperReceivedArgs e)
+        private void TwitchWhispers_OnWhisperReceived(object sender, OnWhisperReceivedArgs e)
         {
             if (!Bot.AdminUsers.Any(x => x.Equals(e.WhisperMessage.Username, StringComparison.InvariantCultureIgnoreCase))) return;
 
@@ -54,9 +48,9 @@ namespace PromBot.CommandModules.Utilities.Commands
 
         #region End Program, Has to be running as a service, and it will auto restart.
 
-        private void DoRestartBot(TwitchLib.Events.Client.OnWhisperReceivedArgs e)
+        private async void DoRestartBot(OnWhisperReceivedArgs e)
         {
-            _client.TwitchClient.SendMessage(Bot.Channel, $"Bot Restart Requested By: @{e.WhisperMessage.Username}. Restarting.");
+            await Client.SendMessage(Bot.Channel, $"Bot Restart Requested By: @{e.WhisperMessage.Username}. Restarting.").ConfigureAwait(false);
             Environment.Exit(1);
         }
         
@@ -64,34 +58,34 @@ namespace PromBot.CommandModules.Utilities.Commands
 
         #region Send Uptime
 
-        private async void SendUptime(TwitchLib.Events.Client.OnWhisperReceivedArgs e)
+        private async void SendUptime(OnWhisperReceivedArgs e)
         {
             var uptime = DateTime.Now - Process.GetCurrentProcess().StartTime;
-            await _client.SendWhisper($"{Bot.BotNickname} Uptime: {uptime.Days} Days {uptime.Hours}:{uptime.Minutes}:{uptime.Seconds}", e.WhisperMessage.Username);
+            await Client.SendWhisper($"{Bot.BotNickname} Uptime: {uptime.Days} Days {uptime.Hours}:{uptime.Minutes}:{uptime.Seconds}", e.WhisperMessage.Username);
         }
 
         #endregion
 
         #region Send a Message as the Bot To The Channel
 
-        private async void SayAsBot(TwitchLib.Events.Client.OnWhisperReceivedArgs e)
+        private async void SayAsBot(OnWhisperReceivedArgs e)
         {
             var parts = e.WhisperMessage.Message.Split(' ');
             if (parts.Length < 2) return;
             var message = e.WhisperMessage.Message.Replace("#botsay", "").Trim();
-            await _client.SendMessage(message);
+            await Client.SendMessage(message).ConfigureAwait(false);
        }
 
         #endregion
 
         #region Send Server Stats
 
-        private async void SendStats(TwitchLib.Events.Client.OnWhisperReceivedArgs e)
+        private async void SendStats(OnWhisperReceivedArgs e)
         {
             var sender = e.WhisperMessage.Username;
             var ram = Convert.ToInt32(_ramCounter.NextValue()).ToString() + "Mb";
             var cpu = Convert.ToInt32(_cpuCounter.NextValue()).ToString() + "%";
-            await _client.SendWhisper($"Current Server Stats: Cpu Usage: {cpu} - Free Memory: {ram}", sender);
+            await Client.SendWhisper($"Current Server Stats: Cpu Usage: {cpu} - Free Memory: {ram}", sender).ConfigureAwait(false);
         }
 
         #endregion

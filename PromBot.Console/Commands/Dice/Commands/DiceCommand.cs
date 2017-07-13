@@ -28,8 +28,7 @@ namespace PromBot.CommandModules.Dice.Commands
                if (!string.IsNullOrWhiteSpace(e.GetArg(1)))
                {
                    var diceResults = new List<int>();
-                   uint quantInt;
-                   if (!uint.TryParse(e.GetArg(1), out quantInt)) return;
+                   if (!uint.TryParse(e.GetArg(1), out uint quantInt)) return;
                    switch (e.GetArg(0))
                    {
                        case "d2":

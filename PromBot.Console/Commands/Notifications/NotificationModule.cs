@@ -5,7 +5,7 @@ namespace PromBot.CommandModules.Notifications
 {
     internal class NotificationModule : ChannelModule
     {
-        public NotificationModule()
+        public NotificationModule(Client client) : base(client)
         {
             commands.Add(new Commands.Twitch(this));
         }

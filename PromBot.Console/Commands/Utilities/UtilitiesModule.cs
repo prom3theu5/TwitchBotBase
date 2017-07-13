@@ -5,7 +5,7 @@ namespace PromBot.CommandModules.Utilities
 {
     internal class UtilitiesModule : ChannelModule
     {
-        public UtilitiesModule()
+        public UtilitiesModule(Client client) : base(client)
         {
             commands.Add(new Commands.AdminStats(this));
         }
